@@ -14,7 +14,7 @@ import android.view.SurfaceView;
  */
 
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback , Camera.PreviewCallback{
-
+//    http://blog.csdn.net/chylove5/article/details/49637535
     //源视频帧 宽/高
     private int srcFrameWidth  = 640;
     private int srcFrameHeight = 480;
@@ -38,7 +38,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback , 
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-    
+
     }
 
     @Override
