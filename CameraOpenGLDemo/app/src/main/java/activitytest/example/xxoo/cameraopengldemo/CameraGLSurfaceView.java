@@ -12,4 +12,9 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
     public CameraGLSurfaceView(Context context) {
         super(context);
     }
+
+    @Override
+    public void onSaveFrames(byte[] data, int length) {
+
+    }
 }

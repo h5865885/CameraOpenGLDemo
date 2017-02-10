@@ -3,11 +3,15 @@ package activitytest.example.xxoo.cameraopengldemo;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import java.io.IOException;
 
 /**
  * Created by xxoo on 2017/2/9.
@@ -15,6 +19,9 @@ import android.view.SurfaceView;
 
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback , Camera.PreviewCallback{
 //    http://blog.csdn.net/chylove5/article/details/49637535
+
+    private static final String TAG = "CameraView";
+
     //源视频帧 宽/高
     private int srcFrameWidth  = 640;
     private int srcFrameHeight = 480;
@@ -23,6 +30,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback , 
     private Camera camera = null;
     //视频帧共享存储回调接口
     private SurfaceHolder surfaceHolder;
+
+    private SaveFrameCallback saveFrameCallback = null;
+    private SaveFrameCallback YUVFrameCallback = null;
 
     public CameraView(Context context) {
         super(context);
@@ -44,6 +54,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback , 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         stopCamera();
+        startCamera(holder);
     }
 
     @Override
@@ -53,23 +64,51 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback , 
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
+        stopCamera();
     }
 
     //打开摄像头
-    private void startCamera(int cameraIndex){
-        initCamera(cameraIndex);
+    private void startCamera(SurfaceHolder holder){
+
+        initCamera(holder);
     }
 
     //初始化摄像头
-    public void initCamera(int cameraIndex){
+    public void initCamera(SurfaceHolder holder){
         //初始化摄像头 并打开
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+//                == PackageManager.PERMISSION_GRANTED) {
+//
+//        }else {
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.CAMERA}, 1);//1 can be another integer
+//        }
+        if (camera == null){
+            try {
+                camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
+            }catch (RuntimeException e){
+                Log.d(TAG, "initCamera: Open方法有问题");
+                return;
+            }
+            Camera.Parameters params = camera.getParameters();
+            try {
+                params.setPreviewFormat(ImageFormat.NV21);
+                params.setPreviewSize(srcFrameWidth,srcFrameHeight);
+                camera.setParameters(params);
 
-        }else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA}, 1);//1 can be another integer
+                params = camera.getParameters();
+//                params.setPreviewFpsRange(15*1000,30*1000);
+            }catch (Exception e){
+                Log.d(TAG, "initCamera:"+e);
+            }
+            try {
+                camera.setPreviewDisplay(holder);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            camera.setPreviewCallback(this);
+            camera.startPreview();
+            camera.setDisplayOrientation(180);
         }
     }
 
@@ -82,4 +121,14 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback , 
             camera = null;
         }
     }
+
+    //保存视频帧  interface接口 可以看做是一种特殊的抽象类，可以指定一个类必须做什么，而不是规定它如何去做。
+    //在调用的地方 实现 onSaveFrames这个方法....
+    public interface SaveFrameCallback{
+        public void onSaveFrames(byte[] data,int length);
+    }
+    public void setSaveFrameCallback(SaveFrameCallback saveFrameCallback){
+        this.saveFrameCallback = saveFrameCallback;
+    }
+
 }
