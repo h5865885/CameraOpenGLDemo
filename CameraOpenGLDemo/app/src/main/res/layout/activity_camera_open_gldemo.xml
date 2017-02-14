@@ -27,6 +27,7 @@
             android:id="@+id/GLpreviewLayout"
             android:layout_width="match_parent"
             android:layout_height="240dip"
+            android:layout_marginTop="24px"
             android:background="#000000">
         </RelativeLayout>
         <!-- 视频预览 -->

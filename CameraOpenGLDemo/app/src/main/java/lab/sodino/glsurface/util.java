@@ -48,34 +48,34 @@ public class util
                     "const mat3 convertMat = mat3( 1.0, 1.0, 1.0, 0.0, -0.39465, 2.03211, 1.13983, -0.58060, 0.0 );\n"+
                     "void main(void)                            \n"+
                     "{                                          \n"+
-                    "vec3 yuv;                                  \n"+
-                    "yuv.x = texture2D(SamplerY, tc).r;         \n"+
-                    "yuv.y = texture2D(SamplerU, tc).r - 0.5;   \n"+
-                    "yuv.z = texture2D(SamplerV, tc).r - 0.5;   \n"+
-                    "vec3 color = convertMat * yuv;             \n"+
-                    "// 亮度/对比度调节                         \n"+
-                    "color += (1.0 - color) * color*0.2362;     \n"+
-                    "color = min(vec3(1.0), ((color - 0.5) * tan(0.328.725 * PI) + 0.5));\n"+
-                    "// 调色                                    \n"+
-                    "color.g = color.g * 0.87 + 0.13;           \n"+
-                    "color.b = color.b * 0.439 + 0.561;         \n"+
-                    "color *= vec3(0.981, 0.862, 0.686);        \n"+
-                    "// 混合                                    \n"+
-                    "vec4 mainColor = vec4(color, 1.0);         \n"+
-                    "vec4 maskColor = texture2D(SamplerM, tc);  \n"+
-                    "mainColor.r = maskColor.r + mainColor.r * mainColor.a * (1.0 - maskColor.a);\n"+
-                    "mainColor.g = maskColor.g + mainColor.g * mainColor.a * (1.0 - maskColor.a);\n"+
-                    "mainColor.b = maskColor.b + mainColor.b * mainColor.a * (1.0 - maskColor.a);\n"+
-                    "mainColor.a = maskColor.a + mainColor.a * (1.0 - maskColor.a); \n"+
-                    "gl_FragColor =mainColor;                                       \n"+
+//                    "vec3 yuv;                                  \n"+
+//                    "yuv.x = texture2D(SamplerY, tc).r;         \n"+
+//                    "yuv.y = texture2D(SamplerU, tc).r - 0.5;   \n"+
+//                    "yuv.z = texture2D(SamplerV, tc).r - 0.5;   \n"+
+//                    "vec3 color = convertMat * yuv;             \n"+
+//                    "// 亮度/对比度调节                         \n"+
+//                    "color += (1.0 - color) * color*0.2362;     \n"+
+//                    "color = min(vec3(1.0), ((color - 0.5) * tan(0.328.725 * PI) + 0.5));\n"+
+//                    "// 调色                                    \n"+
+//                    "color.g = color.g * 0.87 + 0.13;           \n"+
+//                    "color.b = color.b * 0.439 + 0.561;         \n"+
+//                    "color *= vec3(0.981, 0.862, 0.686);        \n"+
+//                    "// 混合                                    \n"+
+//                    "vec4 mainColor = vec4(color, 1.0);         \n"+
+//                    "vec4 maskColor = texture2D(SamplerM, tc);  \n"+
+//                    "mainColor.r = maskColor.r + mainColor.r * mainColor.a * (1.0 - maskColor.a);\n"+
+//                    "mainColor.g = maskColor.g + mainColor.g * mainColor.a * (1.0 - maskColor.a);\n"+
+//                    "mainColor.b = maskColor.b + mainColor.b * mainColor.a * (1.0 - maskColor.a);\n"+
+//                    "mainColor.a = maskColor.a + mainColor.a * (1.0 - maskColor.a); \n"+
+//                    "gl_FragColor =mainColor;                                       \n"+
 
-//                    "vec4 c = vec4((texture2D(SamplerY, tc).r - 16./255.) * 1.164);\n"+
-//                    "vec4 U = vec4(texture2D(SamplerU, tc).r - 128./255.);\n"+
-//                    "vec4 V = vec4(texture2D(SamplerV, tc).r - 128./255.);\n"+
-//                    "c += V * vec4(1.596, -0.813, 0, 0);\n"+
-//                    "c += U * vec4(0, -0.392, 2.017, 0);\n"+
-//                    "c.a = 1.0;\n"+
-//                    "gl_FragColor = c;\n"+
+                    "vec4 c = vec4((texture2D(SamplerY, tc).r - 16./255.) * 1.164);\n"+
+                    "vec4 U = vec4(texture2D(SamplerU, tc).r - 128./255.);\n"+
+                    "vec4 V = vec4(texture2D(SamplerV, tc).r - 128./255.);\n"+
+                    "c += V * vec4(1.596, -0.813, 0, 0);\n"+
+                    "c += U * vec4(0, -0.392, 2.017, 0);\n"+
+                    "c.a = 1.0;\n"+
+                    "gl_FragColor = c;\n"+
             "}                                                              \n";
     public static float squareVertices[] = {
             -1.0f, -1.0f,

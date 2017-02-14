@@ -98,7 +98,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
             Log.d(TAG, "onSurfaceCreated:");
             mbpaly = false;
             //设置背景的颜色
-            GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+            GLES20.glClearColor(1.0f, 0.5f, 0.5f, 1.0f);
             //启动纹理
             GLES20.glEnable(GLES20.GL_TEXTURE_2D);
             GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -110,8 +110,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
             //创建yuv纹理
             createTexture(frameHeight,frameWidth, GLES20.GL_LUMINANCE, Ytexture);
             createTexture(frameHeight>>1,frameWidth>>1,  GLES20.GL_LUMINANCE, Utexture);
-            createTexture(frameHeight >> 1,frameWidth >> 1, GLES20.GL_LUMINANCE, Vtexture);
-            createTexture( frameHeight,frameWidth, GLES20.GL_RGBA, Mtexture);
+            createTexture(frameHeight>>1,frameWidth>>1, GLES20.GL_LUMINANCE, Vtexture);
+            createTexture(frameHeight,frameWidth, GLES20.GL_RGBA, Mtexture);
             
             mbpaly = true;
         }
@@ -215,7 +215,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
                 GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, frameHeight,frameWidth,  GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
             }
 
-            //绘制
+            //绘制  height = 480 width = 640
             GLES20.glViewport(0, 0, viewHeight, viewWidth);
 
             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
@@ -247,7 +247,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 //        byte[] tempData2 = new byte[srcFrameWidth * srcFrameWidth * 3/2];
 //        rotateYUV240SP(tempData1,tempData2,srcFrameHeight,srcFrameWidth);
         //帧数回调走这...
-        Log.d(TAG, "onSaveFrames: 235");
+//        Log.d(TAG, "onSaveFrames: 235");
         if (  length != 0 && mbpaly )
         {
             yBuf.clear();
@@ -329,8 +329,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         //取分量uv值
         for( int i = 0;i < uvCount ;i+=2 )
         {
-            vArray[ k ] = src[ nFrameSize +  i ]; //v
-            uArray[ k ] = src[ nFrameSize +  i + 1 ];//u
+            vArray[ k ] = src[nFrameSize +  i ]; //v
+            uArray[ k ] = src[nFrameSize +  i + 1 ];//u
             k++;
         }
 //        yuv420 又分为

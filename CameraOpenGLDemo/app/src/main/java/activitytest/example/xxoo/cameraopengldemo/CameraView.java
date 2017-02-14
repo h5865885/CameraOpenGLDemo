@@ -76,6 +76,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback , 
     //初始化摄像头
     public void initCamera(SurfaceHolder holder){
         //初始化摄像头 并打开
+        Log.d(TAG, "initCamera");
         if (ContextCompat.checkSelfPermission(_mainContext, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
             if (camera == null){
