@@ -8,6 +8,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.View;
+import com.megvii.facepp.sdk.Facepp;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
