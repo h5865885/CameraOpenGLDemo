@@ -279,9 +279,14 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         _mHandler.post(new Runnable() {
             @Override
             public void run() {
+                //face数组 考虑多张脸的情况
                 final Facepp.Face[] faces = _facepp.detect(data,srcFrameWidth,srcFrameHeight,Facepp.IMAGEMODE_NV21);
-//                faces.
-                Log.d(TAG, "run: faces");
+                if (faces.length>0){
+                    float x = faces[0].points[0].x;
+//                    Log.d(TAG, "run: faces "+x);
+//                    Log.d(TAG, "run: facesCount "+faces[0].points.length);
+                }
+
             }
         });
 
