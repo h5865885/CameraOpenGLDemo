@@ -130,10 +130,10 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback , 
     {
         synchronized (this)
         {
-            if (saveFrameCallback != null )
+            if (saveFrameCallback != null)
 //            Log.d(TAG, "onPreviewFrame 134");
                 saveFrameCallback.onSaveFrames(data,data.length);
-            if ( YUVFrameCallback != null )
+            if (YUVFrameCallback != null)
 //                Log.d(TAG, "onPreviewFrame 138");
                 YUVFrameCallback.onSaveFrames(data,data.length);
         }
@@ -151,11 +151,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback , 
     {
         this.saveFrameCallback = saveFrameCallback;
     }
-
     //走DrawYUVView
     public void setDarwYUVFrameCallback(SaveFrameCallback saveFrameCallback)
     {
         this.YUVFrameCallback = saveFrameCallback;
     }
-
 }

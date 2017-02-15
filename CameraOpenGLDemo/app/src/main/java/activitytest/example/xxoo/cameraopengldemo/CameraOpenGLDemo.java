@@ -58,4 +58,10 @@ public class CameraOpenGLDemo extends Activity{
         previewLayout.addView(cameraView, layoutParams);
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGLView.onResumeConfig();
+    }
 }

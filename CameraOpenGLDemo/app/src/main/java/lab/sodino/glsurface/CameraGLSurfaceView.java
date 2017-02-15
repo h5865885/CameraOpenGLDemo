@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.view.View;
 import com.megvii.facepp.sdk.Facepp;
@@ -19,6 +21,8 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import activitytest.example.xxoo.cameraopengldemo.CameraView;
+import activitytest.example.xxoo.cameraopengldemo.ConUtil;
+import activitytest.example.xxoo.cameraopengldemo.R;
 
 /**
  * Created by chenyan on 2015/10/21.
@@ -31,7 +35,12 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
     private int srcFrameHeight = 480;
     private int viewWidth = 0, viewHeight = 0;
     private int frameWidth = 640, frameHeight = 480;
-
+    private Facepp _facepp;
+    private Handler _mHandler;//线程
+    private HandlerThread _mHandlerThread;
+    private int detection_interval = 25;
+    private int min_face_size = 200;
+    private float roi_ratio = 0.8f;
 
     private ByteBuffer yBuf = null, uBuf = null, vBuf = null;
     //    private ByteBuffer mBuf = null;
@@ -59,6 +68,9 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
     {
         super(context);
         Log.d(TAG, "CameraGLSurfaceView");
+
+        init();
+
         setEGLContextClientVersion(2);
         //设置Renderer到GLSurfaceView
         setRenderer(new MyGL20Renderer());
@@ -89,6 +101,13 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 //        Canvas baseCanvas = new Canvas();
 //        baseCanvas.setBitmap(baseBmp);
 //        baseBmp.copyPixelsToBuffer(mBuf);
+    }
+
+    private void init(){
+        _facepp = new Facepp();
+        _mHandlerThread = new HandlerThread("facepp");
+        _mHandlerThread.start();
+        _mHandler = new Handler(_mHandlerThread.getLooper());
     }
 
     public class MyGL20Renderer implements GLSurfaceView.Renderer
@@ -240,23 +259,53 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         return handle;
     }
 
-    public void onSaveFrames(byte[] data, int length)
+    public void onResumeConfig() {
+        String errorCode = _facepp.init(getContext(), ConUtil.getFileContent(getContext(), R.raw
+                .megviifacepp_0_4_1_model));
+        Log.d(TAG, "errorcode :"+errorCode);
+        Facepp.FaceppConfig faceppConfig = _facepp.getFaceppConfig();
+        faceppConfig.interval = detection_interval;//表示每隔多少帧进行一次全图的人脸检测
+         _facepp.setFaceppConfig(faceppConfig);
+//        faceppConfig.roi_left =
+    }
+
+    /**
+     * 核心方法...
+     */
+    public void onSaveFrames(final byte[] data, int length)
     {
-        //先执行旋转...
-        byte[] tempData1 = new byte[srcFrameWidth * srcFrameWidth * 3/2];
-        rotateYUV240SP(data,tempData1,srcFrameWidth,srcFrameHeight);
-//        byte[] tempData2 = new byte[srcFrameWidth * srcFrameWidth * 3/2];
-//        rotateYUV240SP(tempData1,tempData2,srcFrameHeight,srcFrameWidth);
-        //帧数回调走这...
-//        Log.d(TAG, "onSaveFrames: 235");
-        if (  length != 0 && mbpaly )
-        {
-            yBuf.clear();
-            uBuf.clear();
-            vBuf.clear();
-            rotateYUV(tempData1, srcFrameHeight, srcFrameWidth);
-            requestRender();
-        }
+//        Log.d(TAG, "onSaveFrames.254");
+
+        _mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final Facepp.Face[] faces = _facepp.detect(data,srcFrameWidth,srcFrameHeight,Facepp.IMAGEMODE_NV21);
+//                faces.
+                Log.d(TAG, "run: faces");
+            }
+        });
+
+        //        //先执行旋转...
+//        byte[] tempData1 = new byte[srcFrameWidth * srcFrameWidth * 3/2];
+//        rotateYUV240SP(data,tempData1,srcFrameWidth,srcFrameHeight);
+////        byte[] tempData2 = new byte[srcFrameWidth * srcFrameWidth * 3/2];
+////        rotateYUV240SP(tempData1,tempData2,srcFrameHeight,srcFrameWidth);
+//        //帧数回调走这...
+////        Log.d(TAG, "onSaveFrames: 235");
+//        if (length != 0 && mbpaly )
+//        {
+//            yBuf.clear();
+//            uBuf.clear();
+//            vBuf.clear();
+//            rotateYUV(tempData1, srcFrameHeight, srcFrameWidth);
+//            requestRender();
+//        }
+    }
+
+    public void setConfig(int rotation){
+        Facepp.FaceppConfig faceppConfig = _facepp.getFaceppConfig();
+        faceppConfig.rotation = rotation;
+        _facepp.setFaceppConfig(faceppConfig);
     }
 
     public static byte[] rotateYUV240SP(byte[] src,byte[] des,int width,int height)
@@ -344,6 +393,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         uBuf.put(uArray).position(0);
         vBuf.put(vArray).position(0);
     }
+
+
 
 //    public void initFBO(int nWidth,int nHeight)
 //    {
