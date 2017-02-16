@@ -10,26 +10,32 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="activitytest.example.xxoo.cameraopengldemo.CameraOpenGLDemo">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+    <lab.sodino.glsurface.CameraGLSurfaceView
+        android:id="@+id/opengl_layout_surfaceview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical">-->
         <!-- 视频预览 -->
-        <RelativeLayout
-            android:id="@+id/previewLayout"
-            android:layout_width="match_parent"
-            android:layout_height="240dip"
-            android:background="#ff0000">
-        </RelativeLayout>
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/previewLayout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="240dip"-->
+            <!--android:background="#ff0000">-->
+        <!--</RelativeLayout>-->
 
          <!--视频预览 -->
-        <RelativeLayout
-            android:id="@+id/GLpreviewLayout"
-            android:layout_width="match_parent"
-            android:layout_height="240dip"
-            android:layout_marginTop="24px"
-            android:background="#000000">
-        </RelativeLayout>
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/GLpreviewLayout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="240dip"-->
+            <!--android:layout_marginTop="24px"-->
+            <!--android:background="#000000">-->
+        <!--</RelativeLayout>-->
+
         <!-- 视频预览 -->
         <!--<RelativeLayout-->
         <!--android:id="@+id/DrawpreviewLayout"-->
@@ -37,5 +43,5 @@
         <!--android:layout_height="180dip"-->
         <!--android:background="#0000ff">-->
         <!--</RelativeLayout>-->
-    </LinearLayout>
+    <!--</LinearLayout>-->
 </RelativeLayout>

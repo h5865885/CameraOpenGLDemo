@@ -3,6 +3,33 @@
 
     <item
         is-multidex="true"
+        jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/exploded-aar/com.android.support/support-core-ui/25.1.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="aee64634871d88a419d59eb743c1258a60f19700">
+        <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-core-ui-25.1.0_40613bb0afd007db84455b787064c5f0ec25d6ee/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/exploded-aar/com.android.support/support-compat/25.1.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="ca3c7aa31e2726a400a6e552b93cb9f63c9a1e6d">
+        <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-compat-25.1.0_de525f6aa482c087650f419596d8d2e48f2e0949/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/exploded-aar/com.android.support/support-fragment/25.1.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="2a53c4f3518116b8c6aee0e477233f0f7da8616f">
+        <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-fragment-25.1.0_e5d4af63863531beb894a1f549477243c86d5450/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
         jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/25.1.0/jars/classes.jar"
         jumboMode="true"
         optimize="true"
@@ -30,30 +57,12 @@
     </item>
     <item
         is-multidex="true"
-        jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/exploded-aar/com.android.support/support-core-ui/25.1.0/jars/classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="aee64634871d88a419d59eb743c1258a60f19700">
-        <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-core-ui-25.1.0_40613bb0afd007db84455b787064c5f0ec25d6ee/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
         jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/exploded-aar/MGLicenseManagerSDK-0.2.0/jars/classes.jar"
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
         sha1="6c0ee03ac6868f20992743d29866a80b9942c2bf">
         <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/intermediates-exploded-aar-MGLicenseManagerSDK-0.2.0_88233811bc834afca30cc21ae458a9465f6d0000/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/exploded-aar/com.android.support/support-compat/25.1.0/jars/classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="ca3c7aa31e2726a400a6e552b93cb9f63c9a1e6d">
-        <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-compat-25.1.0_de525f6aa482c087650f419596d8d2e48f2e0949/classes.dex" />
     </item>
     <item
         is-multidex="true"
@@ -102,30 +111,21 @@
     </item>
     <item
         is-multidex="true"
-        jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="c995c3a9c0c9c8d5c34ac015699b214adb33bca7">
-        <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_ac395a2c3f0e4f42e789cddf3ffa9c64d1271261/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
-        jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/exploded-aar/com.android.support/support-fragment/25.1.0/jars/classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="2a53c4f3518116b8c6aee0e477233f0f7da8616f">
-        <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-fragment-25.1.0_e5d4af63863531beb894a1f549477243c86d5450/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
         jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="3c84510d79736861cc2a77119002fd4fe5e7eaa0">
+        sha1="dcbb26103a0c6b78ac9a9d85045060b64ef56fcd">
         <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_581924790e5ebb90d6832d868101b11463f574ae/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="a42a482d9daba207e526847a71594c8c8e6de069">
+        <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_ac395a2c3f0e4f42e789cddf3ffa9c64d1271261/classes.dex" />
     </item>
 
 </items>

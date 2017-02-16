@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Surface;
@@ -20,7 +21,7 @@ public class CameraOpenGLDemo extends Activity{
 
     private static final String TAG = "CameraOpenGLDemo";
 
-    private CameraGLSurfaceView mGLView = null;
+    private CameraGLSurfaceView mGLSurfaceView = null;
     private DrawYUVView mDrawView = null;
     private CameraView cameraView = null;
     private RelativeLayout previewLayout = null,GLpreviewLayout = null,DrawpreviewLayout;
@@ -36,11 +37,15 @@ public class CameraOpenGLDemo extends Activity{
         setContentView(R.layout.activity_camera_open_gldemo);
         RelativeLayout.LayoutParams layoutParams = null;
 
+        Log.d(TAG, "onCreate: start");
+        mGLSurfaceView = (CameraGLSurfaceView) findViewById(R.id.opengl_layout_surfaceview);
+        Log.d(TAG, "onCreate: end");
+
         //GL绘制窗口
-        GLpreviewLayout = (RelativeLayout)findViewById(R.id.GLpreviewLayout);
-        layoutParams = new RelativeLayout.LayoutParams(640,480);
-        mGLView = new CameraGLSurfaceView(this);
-        GLpreviewLayout.addView(mGLView, layoutParams);
+//        GLpreviewLayout = (RelativeLayout)findViewById(R.id.GLpreviewLayout);
+//        layoutParams = new RelativeLayout.LayoutParams(640,480);
+//        mGLView = new CameraGLSurfaceView(this);
+//        GLpreviewLayout.addView(mGLView, layoutParams);
 
 //
         //绘制视频窗口
@@ -50,18 +55,18 @@ public class CameraOpenGLDemo extends Activity{
 //        DrawpreviewLayout.addView(mDrawView, layoutParams);
 
         //视频窗口
-        previewLayout = (RelativeLayout)findViewById(R.id.previewLayout);
-        layoutParams = new RelativeLayout.LayoutParams(480,640);
-        cameraView = new CameraView(this);
-        cameraView.setSaveFrameCallback(mGLView);
-//        cameraView.setDarwYUVFrameCallback(mDrawView);
-        previewLayout.addView(cameraView, layoutParams);
+//        previewLayout = (RelativeLayout)findViewById(R.id.previewLayout);
+//        layoutParams = new RelativeLayout.LayoutParams(480,640);
+//        cameraView = new CameraView(this);
+//        cameraView.setSaveFrameCallback(mGLView);
+////        cameraView.setDarwYUVFrameCallback(mDrawView);
+//        previewLayout.addView(cameraView, layoutParams);
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mGLView.onResumeConfig();
+        mGLSurfaceView.onResumeConfig(this);
     }
 }
