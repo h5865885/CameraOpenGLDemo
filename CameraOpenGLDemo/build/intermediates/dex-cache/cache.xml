@@ -115,7 +115,7 @@
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="dcbb26103a0c6b78ac9a9d85045060b64ef56fcd">
+        sha1="68505febcc0db5c507332c4b0b73ac2c2653f344">
         <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_581924790e5ebb90d6832d868101b11463f574ae/classes.dex" />
     </item>
     <item
@@ -124,7 +124,7 @@
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="a42a482d9daba207e526847a71594c8c8e6de069">
+        sha1="f3930cadcd01660139cf33f8d54484ba29e3bfb0">
         <dex dex="/Users/xxoo/Desktop/OpenGLCamera/CameraOpenGLDemo/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_ac395a2c3f0e4f42e789cddf3ffa9c64d1271261/classes.dex" />
     </item>
 

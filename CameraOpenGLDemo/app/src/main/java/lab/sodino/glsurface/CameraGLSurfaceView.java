@@ -13,6 +13,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -56,6 +57,9 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
     private float roi_ratio = 0.8f;
     private boolean isStartRecorder, is3DPose, isDebug, isROIDetect, is106Points, isBackCamera, isFaceProperty,
             isSmooth;
+
+    private boolean isTiming = true; // 是否是定时去刷新界面;
+    private int printTime = 31;
 
     private ByteBuffer yBuf = null, uBuf = null, vBuf = null;
     //    private ByteBuffer mBuf = null;
@@ -150,7 +154,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 
         Log.d(TAG, "onSurfaceCreated");
         
-        GLES20.glClearColor(0.0f,0.0f,0.0f,1.0f);
+        GLES20.glClearColor(0.5f,0.0f,0.0f,1.0f);
         int[] texture = new int[1];
         //create TextureID 创建纹理
         GLES20.glGenTextures(1, texture, 0);
@@ -171,6 +175,12 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         mCameraMatrix = new CameraMatrix(mTextureID);
         mPointsMatrix = new PointsMatrix();
 
+        mICamera.startPreview(mSurface);
+//        mICamera.actionDetect(mICamera); 代理回调需要在哪实现...一样一样的
+        mICamera.actionDetect(this);
+        if (isTiming) {
+            timeHandle.sendEmptyMessageDelayed(0, printTime);
+        }
     }
 
 
@@ -211,7 +221,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
     //相机的回调函数
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
-        Log.d(TAG, "onPreviewFrame: 相机回调");
+//        Log.d(TAG, "onPreviewFrame: 相机回调");
         onSaveFrames(data,camera);
     }
 
@@ -234,9 +244,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
     public void onResumeConfig(Context context) {
         Log.d(TAG, "onResumeConfig:openCamera");
         mICamera.openCamera(false,context,null);
-        mICamera.startPreview(mSurface);
-//        mICamera.actionDetect(mICamera); 代理回调需要在哪实现...一样一样的
-        mICamera.actionDetect(this);
+
 //        mCamera = mICamera.openCamera(isBackCamera, this, resolutionMap);
 
         String errorCode = _facepp.init(getContext(), ConUtil.getFileContent(getContext(), R.raw
@@ -272,7 +280,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
                 //face数组 考虑多张脸的情况
                 final Facepp.Face[] faces = _facepp.detect(data,srcFrameWidth,srcFrameHeight,Facepp.IMAGEMODE_NV21);
                 if (faces != null){
-                    ArrayList pointsOpengl = new ArrayList(faces[0].points.length);
+                    ArrayList pointsOpengl = new ArrayList();
                     if (faces.length>0){
 //                        float x = faces[0].points[0].x;
 //                    Log.d(TAG, "run: faces "+x); Log.d(TAG, "run: facesCount "+faces[0].points
@@ -302,23 +310,26 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
                             }
                             pointsOpengl.add(triangleVBList);
                         }
+
+                        if (faces.length > 0 && is3DPose){
+//                        mPointsMatrix.bottomVertexBuffer = OpenGLDrawRect.drawBottomShowRect(0.15f, 0, -0.7f, pitch,
+//                                -yaw, roll, 0);
+                        }else {
+                            mPointsMatrix.bottomVertexBuffer = null;
+                        }
+                        synchronized (mPointsMatrix){
+                            mPointsMatrix.points = pointsOpengl;
+                        }
                     }else {
                         pitch = 0;
                         yaw   = 0;
                         roll  = 0;
                     }
-                    if (faces.length > 0 && is3DPose){
-//                        mPointsMatrix.bottomVertexBuffer = OpenGLDrawRect.drawBottomShowRect(0.15f, 0, -0.7f, pitch,
-//                                -yaw, roll, 0);
-                    }else {
-                        mPointsMatrix.bottomVertexBuffer = null;
-                    }
-                    synchronized (mPointsMatrix){
-                        mPointsMatrix.points = pointsOpengl;
-                    }
-
-
-
+                }else {
+                    Log.d(TAG, "run: faces = null 为空");
+                }
+                if (!isTiming) {
+                    timeHandle.sendEmptyMessage(1);
                 }
             }
         });
@@ -626,4 +637,21 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
             GLES20.glViewport(0, 0, viewHeight, viewWidth);
         }
     }
+
+    Handler timeHandle = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    Log.d(TAG, "handleMessage: 0");
+                    requestRender();// 发送去绘制照相机不断去回调
+                    timeHandle.sendEmptyMessageDelayed(0, printTime);
+                    break;
+                case 1:
+                    Log.d(TAG, "handleMessage: 1");
+                    requestRender();// 发送去绘制照相机不断去回调
+                    break;
+            }
+        }
+    };
 }

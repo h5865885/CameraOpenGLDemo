@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
@@ -39,6 +40,7 @@ public class ICamera {
      */
     public Camera openCamera(boolean isBackCamera, Context context, HashMap<String, Integer> resolutionMap) {
 
+
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
             if (mCamera == null){
@@ -56,6 +58,7 @@ public class ICamera {
                     parameters.setPreviewFormat(ImageFormat.NV21);
                     parameters.setPreviewSize(cameraWidth,cameraHeight);
                     Angle = 0;
+                    Log.d(TAG, "openCamera"+cameraWidth+"   "+cameraHeight);
                     mCamera.setParameters(parameters);
                     return mCamera;
                 }catch (Exception e){
@@ -67,6 +70,9 @@ public class ICamera {
             }
         }else {
             Log.d(TAG, "initCamera: error");
+            ActivityCompat.requestPermissions((Activity)context,
+                    new String[]{Manifest.permission.CAMERA}, 1);
+            Log.d(TAG, "openCamera: 申请权限");
             return null;
         }
     }
@@ -76,6 +82,7 @@ public class ICamera {
      */
     public void actionDetect(Camera.PreviewCallback mActivity) {
         if (mCamera != null) {
+            Log.d(TAG, "actionDetect");
             mCamera.setPreviewCallback(mActivity);
         }
     }
