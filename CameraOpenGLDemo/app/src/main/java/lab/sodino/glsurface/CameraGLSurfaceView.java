@@ -1,10 +1,11 @@
 package lab.sodino.glsurface;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PointF;
 import android.opengl.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -16,11 +17,12 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
+
 import com.megvii.facepp.sdk.Facepp;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -29,12 +31,12 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import activitytest.example.xxoo.cameraopengldemo.CameraMatrix;
-import activitytest.example.xxoo.cameraopengldemo.CameraOpenGLDemo;
 import activitytest.example.xxoo.cameraopengldemo.CameraView;
 import activitytest.example.xxoo.cameraopengldemo.ConUtil;
 import activitytest.example.xxoo.cameraopengldemo.ICamera;
 import activitytest.example.xxoo.cameraopengldemo.PointsMatrix;
 import activitytest.example.xxoo.cameraopengldemo.R;
+import activitytest.example.xxoo.cameraopengldemo.activity.CameraOpenGLDemo;
 
 /**
  * Created by chenyan on 2015/10/21.
@@ -142,7 +144,6 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 //        coordVertices.put(util.coordVertices).position(0);
     }
 
-
     private int mTextureID = -1;
     private SurfaceTexture mSurface;
 
@@ -171,11 +172,11 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         mTextureID = texture[0];
         mSurface = new SurfaceTexture(mTextureID);
         // 这个接口就干了这么一件事，当有数据上来后会进到onFrameAvailable方法
-        mSurface.setOnFrameAvailableListener(this);
+        mSurface.setOnFrameAvailableListener(this);//设置照相机有数据时才进入
         mCameraMatrix = new CameraMatrix(mTextureID);
         mPointsMatrix = new PointsMatrix();
 
-        mICamera.startPreview(mSurface);
+        mICamera.startPreview(mSurface);//设置预览容器
 //        mICamera.actionDetect(mICamera); 代理回调需要在哪实现...一样一样的
         mICamera.actionDetect(this);
         if (isTiming) {
@@ -190,11 +191,11 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        Log.d(TAG, "onSurfaceChanged");
-        //设置画面的大小
-        GLES20.glViewport(0,0,srcFrameWidth,srcFrameHeight);
-        float ratio = (float) srcFrameWidth / srcFrameHeight;
-        ratio = 1;
+        Log.d(TAG, "onSurfaceChanged"+width+"  "+height);
+        //设置画面的大小  可以显示图片 但不能显示关键点
+        GLES20.glViewport(0,0,width,height);
+        float ratio = (float) width / height;
+        ratio = 1;//矩阵这个不能错
 //        projection matrix is applied to object coordinates
 //        in the onDrawFrame() method
         Matrix.frustumM(mProjMatrix,0,-ratio,ratio,-1,1,3,7);
@@ -203,12 +204,12 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        Log.d(TAG, "onDrawFrame");
+//        Log.d(TAG, "onDrawFrame");
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);// 清除屏幕和深度缓存
         float[] mtx = new float[16];
         mSurface.getTransformMatrix(mtx);
         mCameraMatrix.draw(mtx);
-        // Set the camera position (View matrix)
+        // Set the camera position (View matrix矩阵)
         Matrix.setLookAtM(mVMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1f, 0f);
 
         // Calculate the projection and view transformation
@@ -218,11 +219,127 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         mSurface.updateTexImage();//更新image 会调用onFrameAvailable方法
     }
 
+    boolean isSuccess = false;
+
     //相机的回调函数
+    /**
+     * 核心方法...
+     */
     @Override
-    public void onPreviewFrame(byte[] data, Camera camera) {
+    public void onPreviewFrame(final byte[] data, Camera camera) {
+//        Log.d(TAG, "onPreviewFrame: length="+data.length);
+        if (isSuccess)
+            return;
+        isSuccess = true;
 //        Log.d(TAG, "onPreviewFrame: 相机回调");
-        onSaveFrames(data,camera);
+        _mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                int width = mICamera.cameraWidth;
+                int height = mICamera.cameraHeight;
+                setConfig(270);
+                //face数组 考虑多张脸的情况
+                final Facepp.Face[] faces = _facepp.detect(data,width,height,Facepp.IMAGEMODE_NV21);
+                if (faces != null){
+                    ArrayList<ArrayList> pointsOpengl = new ArrayList<ArrayList>();
+                    confidence = 0.0f;
+                    if (faces.length>0){
+//                        float x = faces[0].points[0].x;
+//                    Log.d(TAG, "run: faces "+x); Log.d(TAG, "run: facesCount "+faces[0].points
+// .length)
+                        for (int i = 0; i < faces.length;i++){//只执行一次 基本上 1张脸
+//                            if (i == 52){
+//                                Log.d(TAG, "run: x ="+faces[0].points[52].x);
+//                            }
+//                            * 获取指定人脸的Landmark信息，并改变传入的人脸信息
+//                            _facepp.getLandmark(faces[i],is106Points?Facepp
+//                                        .FPP_GET_LANDMARK106:Facepp.FPP_GET_LANDMARK81);
+                            _facepp.getLandmark(faces[i],Facepp.FPP_GET_LANDMARK106);
+                            //上面一步 获取106个点 否则默认是81个点
+
+//                            Facepp.Face face = faces[i];
+                            if (isFaceProperty){
+                                //暂无
+                            }
+                            pitch = faces[i].pitch;
+                            yaw   = faces[i].yaw;
+                            roll  = faces[i].roll;
+                            confidence = faces[i].confidence;
+
+                            ArrayList<FloatBuffer> triangleVBList = new ArrayList<FloatBuffer>();
+//                            PointF[] points = new PointF[108];
+                            for (int j = 0; j < faces[i].points.length; j++){
+
+                                float x = (faces[i].points[j].x/height) * 2 - 1;
+                                float y = 1-(faces[i].points[j].y/width) * 2;
+                                float[] pointf = new float[]{x,y,0.0f};
+//
+//                                if (points[j] != null) {
+//                                    points[j].x = x;
+//
+//                                }
+//                                points[j] = pointf(x,y);
+//                                points[i] = ;
+//                                Log.d(TAG, "run: x ="+faces[i].points.length);
+
+                                //默认orientation = 0;
+//                                FloatBuffer floatBuffer =
+                                FloatBuffer floatBuffer = mCameraMatrix.floatBufferUtil(pointf);
+                                triangleVBList.add(floatBuffer);
+                            }
+                            if (facePointsCallback != null && i == 0){
+                                facePointsCallback.onFacePoints(triangleVBList);
+                            }
+                            pointsOpengl.add(triangleVBList);
+                        }
+
+                    }else {
+                        pitch = 0.0f;
+                        yaw   = 0.0f;
+                        roll  = 0.0f;
+                    }
+                    if (faces.length > 0 && is3DPose){
+//                        mPointsMatrix.bottomVertexBuffer = OpenGLDrawRect.drawBottomShowRect(0.15f, 0, -0.7f, pitch,
+//                                -yaw, roll, 0);
+                    }else {
+                        mPointsMatrix.bottomVertexBuffer = null;
+                    }
+                    synchronized (mPointsMatrix){
+                        mPointsMatrix.points = pointsOpengl;
+                    }
+                }
+                isSuccess = false;
+                if (!isTiming) {
+                    timeHandle.sendEmptyMessage(1);
+                }
+            }
+        });
+        //        //先执行旋转...
+//        byte[] tempData1 = new byte[srcFrameWidth * srcFrameWidth * 3/2];
+//        rotateYUV240SP(data,tempData1,srcFrameWidth,srcFrameHeight);
+////        byte[] tempData2 = new byte[srcFrameWidth * srcFrameWidth * 3/2];
+////        rotateYUV240SP(tempData1,tempData2,srcFrameHeight,srcFrameWidth);
+//        //帧数回调走这...
+////        Log.d(TAG, "onSaveFrames: 235");
+//        if (length != 0 && mbpaly )
+//        {
+//            yBuf.clear();
+//            uBuf.clear();
+//            vBuf.clear();
+//            rotateYUV(tempData1, srcFrameHeight, srcFrameWidth);
+//            requestRender();
+//        }
+    }
+
+    private FacePointsCallback facePointsCallback = null;
+
+    public interface FacePointsCallback{
+        //对于接口来说 public是多余的
+        void onFacePoints(ArrayList list);
+    }
+    public void setFacePointsCallback(CameraGLSurfaceView.FacePointsCallback pointsCallback)
+    {
+        this.facePointsCallback = pointsCallback;
     }
 
     //surfaceTexture代理回调
@@ -245,21 +362,30 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         Log.d(TAG, "onResumeConfig:openCamera");
         mICamera.openCamera(false,context,null);
 
+        //修正surfaceView的大小 跟图片大小一样
+        RelativeLayout.LayoutParams layout_params = mICamera.getLayoutParam();
+        setLayoutParams(layout_params);
+
 //        mCamera = mICamera.openCamera(isBackCamera, this, resolutionMap);
 
         String errorCode = _facepp.init(getContext(), ConUtil.getFileContent(getContext(), R.raw
                 .megviifacepp_0_4_1_model));
         Log.d(TAG, "errorcode :"+errorCode);
         Facepp.FaceppConfig faceppConfig = _facepp.getFaceppConfig();
+        faceppConfig.roi_left   = 0;
+        faceppConfig.roi_top    = 0;
+        faceppConfig.roi_right  = srcFrameWidth;
+        faceppConfig.roi_bottom = srcFrameHeight;
         faceppConfig.interval = detection_interval;//表示每隔多少帧进行一次全图的人脸检测
-         _facepp.setFaceppConfig(faceppConfig);
+        faceppConfig.detectionMode = Facepp.FaceppConfig.DETECTION_MODE_TRACKING;
+        _facepp.setFaceppConfig(faceppConfig);
 //        faceppConfig.roi_left =
     }
 
 
     float pitch,//一个弧度，表示物体顺时针饶x轴旋转的弧度。
             yaw,//一个弧度，表示物体顺时针饶y轴旋转的弧度。
-            roll;//一个弧度，表示物体顺时针饶z轴旋转的弧度。
+           roll;//一个弧度，表示物体顺时针饶z轴旋转的弧度。
     float confidence;//人脸置信度
 
     @Override
@@ -267,94 +393,29 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 
     }
 
-    /**
-     * 核心方法...
-     */
-    public void onSaveFrames(final byte[] data, Camera camera)
-    {
-//        Log.d(TAG, "onSaveFrames.254");
-
-        _mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                //face数组 考虑多张脸的情况
-                final Facepp.Face[] faces = _facepp.detect(data,srcFrameWidth,srcFrameHeight,Facepp.IMAGEMODE_NV21);
-                if (faces != null){
-                    ArrayList pointsOpengl = new ArrayList();
-                    if (faces.length>0){
-//                        float x = faces[0].points[0].x;
-//                    Log.d(TAG, "run: faces "+x); Log.d(TAG, "run: facesCount "+faces[0].points
-// .length)
-                        for (int i = 0; i < faces.length;i++){//只执行一次 基本上 1张脸
-//                            * 获取指定人脸的Landmark信息，并改变传入的人脸信息
-                            _facepp.getLandmark(faces[i],is106Points?Facepp
-                                        .FPP_GET_LANDMARK106:Facepp.FPP_GET_LANDMARK81);
-                            Facepp.Face face = faces[i];
-                            if (isFaceProperty){
-                                //暂无
-                            }
-                            pitch = faces[i].pitch;
-                            yaw   = faces[i].yaw;
-                            roll  = faces[i].roll;
-                            confidence = faces[i].confidence;
-
-                            ArrayList<FloatBuffer> triangleVBList = new ArrayList<FloatBuffer>();
-                            for (int j = 0; j < faces[i].points.length; j++){
-                                float x = (faces[i].points[j].x/srcFrameHeight) * 2 - 1;
-                                float y = 1-(faces[i].points[j].y/srcFrameWidth) * 2;
-                                float[] pointf = new float[]{x,y,0.0f};
-                                //默认orientation = 0;
-//                                FloatBuffer floatBuffer =
-                                FloatBuffer floatBuffer = mCameraMatrix.floatBufferUtil(pointf);
-                                triangleVBList.add(floatBuffer);
-                            }
-                            pointsOpengl.add(triangleVBList);
-                        }
-
-                        if (faces.length > 0 && is3DPose){
-//                        mPointsMatrix.bottomVertexBuffer = OpenGLDrawRect.drawBottomShowRect(0.15f, 0, -0.7f, pitch,
-//                                -yaw, roll, 0);
-                        }else {
-                            mPointsMatrix.bottomVertexBuffer = null;
-                        }
-                        synchronized (mPointsMatrix){
-                            mPointsMatrix.points = pointsOpengl;
-                        }
-                    }else {
-                        pitch = 0;
-                        yaw   = 0;
-                        roll  = 0;
-                    }
-                }else {
-                    Log.d(TAG, "run: faces = null 为空");
-                }
-                if (!isTiming) {
-                    timeHandle.sendEmptyMessage(1);
-                }
+    Handler timeHandle = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+//                    Log.d(TAG, "handleMessage: 0");
+                    requestRender();// 发送去绘制照相机不断去回调
+                    timeHandle.sendEmptyMessageDelayed(0, printTime);
+                    break;
+                case 1:
+//                    Log.d(TAG, "handleMessage: 1");
+                    requestRender();// 发送去绘制照相机不断去回调
+                    break;
             }
-        });
-
-        //        //先执行旋转...
-//        byte[] tempData1 = new byte[srcFrameWidth * srcFrameWidth * 3/2];
-//        rotateYUV240SP(data,tempData1,srcFrameWidth,srcFrameHeight);
-////        byte[] tempData2 = new byte[srcFrameWidth * srcFrameWidth * 3/2];
-////        rotateYUV240SP(tempData1,tempData2,srcFrameHeight,srcFrameWidth);
-//        //帧数回调走这...
-////        Log.d(TAG, "onSaveFrames: 235");
-//        if (length != 0 && mbpaly )
-//        {
-//            yBuf.clear();
-//            uBuf.clear();
-//            vBuf.clear();
-//            rotateYUV(tempData1, srcFrameHeight, srcFrameWidth);
-//            requestRender();
-//        }
-    }
+        }
+    };
 
     public void setConfig(int rotation){
         Facepp.FaceppConfig faceppConfig = _facepp.getFaceppConfig();
-        faceppConfig.rotation = rotation;
-        _facepp.setFaceppConfig(faceppConfig);
+        if (faceppConfig.rotation != rotation){
+            faceppConfig.rotation = rotation;
+            _facepp.setFaceppConfig(faceppConfig);
+        }
     }
 
     public static byte[] rotateYUV240SP(byte[] src,byte[] des,int width,int height)
@@ -637,21 +698,4 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
             GLES20.glViewport(0, 0, viewHeight, viewWidth);
         }
     }
-
-    Handler timeHandle = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    Log.d(TAG, "handleMessage: 0");
-                    requestRender();// 发送去绘制照相机不断去回调
-                    timeHandle.sendEmptyMessageDelayed(0, printTime);
-                    break;
-                case 1:
-                    Log.d(TAG, "handleMessage: 1");
-                    requestRender();// 发送去绘制照相机不断去回调
-                    break;
-            }
-        }
-    };
 }

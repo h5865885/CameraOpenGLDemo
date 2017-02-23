@@ -18,9 +18,12 @@ public class CameraMatrix {
     //vertex着色器
     private final String vertexShaderCode = "attribute vec4 vPosition;"
             + "attribute vec2 inputTextureCoordinate;"
-            + "varying vec2 textureCoordinate;" + "void main()" + "{"
+            + "varying vec2 textureCoordinate;"
+            + "void main()"
+            + "{"
             + "gl_Position = vPosition; gl_PointSize = 10.0;"
-            + "textureCoordinate = inputTextureCoordinate;" + "}";
+            + "textureCoordinate = inputTextureCoordinate;"
+            + "}";
     // fragment着色器code
     private final String fragmentShaderCode = "#extension GL_OES_EGL_image_external : require\n"
             + "precision mediump float;"

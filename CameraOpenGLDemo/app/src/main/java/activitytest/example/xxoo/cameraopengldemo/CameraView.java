@@ -144,7 +144,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback , 
     // 保存视频帧
     public interface SaveFrameCallback
     {
-        public void onSaveFrames(byte[] data, int length);
+        void onSaveFrames(byte[] data, int length);
     }
     //走GLSurfaceView
     public void setSaveFrameCallback(SaveFrameCallback saveFrameCallback)

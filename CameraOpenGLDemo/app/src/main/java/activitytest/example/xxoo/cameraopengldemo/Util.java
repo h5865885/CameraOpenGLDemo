@@ -6,6 +6,6 @@ package activitytest.example.xxoo.cameraopengldemo;
 
 public class Util {
     //在这边填写 API_KEY 和 API_SECRET
-    public static String API_KEY    = "2e0YanQLR6m4HUtlMVc7PXNlvM_uIS_9";
-    public static String API_SECRET = "Veq5EszdYgn5ec7dbJjRf0eZMceLOOiw";
+    public static String API_KEY    = "z0Qa4TNm_RocekAugo-GXFrUscqkyh5D";
+    public static String API_SECRET = "TcwfkHH0N89p18tyNxm0dSCQmWLwjM3_";
 }

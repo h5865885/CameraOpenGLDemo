@@ -10,6 +10,8 @@ import android.hardware.Camera;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.WindowManager;
+import android.widget.RelativeLayout;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ public class ICamera {
     public int cameraId = 1;//前置摄像头
     public int Angle;
 
+    private static final String TAG = "ICamera";
+    
     public ICamera() {
 
     }
@@ -55,10 +59,10 @@ public class ICamera {
                     Camera.Size bestPreviewSize = calBestPreviewSize(mCamera.getParameters(),width,height);
                     cameraWidth = bestPreviewSize.width;
                     cameraHeight= bestPreviewSize.height;
-                    parameters.setPreviewFormat(ImageFormat.NV21);
+//                    parameters.setPreviewFormat(ImageFormat.NV21);
                     parameters.setPreviewSize(cameraWidth,cameraHeight);
-                    Angle = 0;
-                    Log.d(TAG, "openCamera"+cameraWidth+"   "+cameraHeight);
+                    Angle = 90;
+                    Log.d(TAG, "openCamera  "+cameraWidth+"   "+cameraHeight+" "+bestPreviewSize.toString());
                     mCamera.setParameters(parameters);
                     return mCamera;
                 }catch (Exception e){
@@ -132,5 +136,26 @@ public class ICamera {
         });
 
         return widthLargerSize.get(0);
+    }
+
+    // 通过屏幕参数、相机预览尺寸计算布局参数
+    public RelativeLayout.LayoutParams getLayoutParam() {
+        float scale = cameraWidth * 1.0f / cameraHeight;
+
+//        WindowManager wm =
+
+        int layout_width = Screen.mWidth;
+        int layout_height = (int) (layout_width * scale);
+
+        if (Screen.mWidth >= Screen.mHeight) {
+            layout_height = Screen.mHeight;
+            layout_width = (int) (layout_height / scale);
+        }
+
+        RelativeLayout.LayoutParams layout_params = new RelativeLayout.LayoutParams(
+                layout_width, layout_height);
+        layout_params.addRule(RelativeLayout.CENTER_HORIZONTAL);// 设置照相机水平居中
+
+        return layout_params;
     }
 }
