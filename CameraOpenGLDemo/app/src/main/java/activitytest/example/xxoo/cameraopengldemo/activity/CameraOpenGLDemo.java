@@ -82,11 +82,14 @@ public class CameraOpenGLDemo extends Activity implements CameraGLSurfaceView.Fa
     protected void onResume() {
         super.onResume();
         mGLSurfaceView.onResumeConfig(this);
+//        faceCanvasView.onResumeConfig(this);
+        RelativeLayout.LayoutParams layout_params = mGLSurfaceView.mICamera.getLayoutParam();
+        faceCanvasView.setLayoutParams(layout_params);
     }
 
     @Override
-    public void onFacePoints(ArrayList list) {
-        faceCanvasView.drawPoints(list);
+    public void onFacePoints(Facepp.Face[] faces,int width,int height) {
+        faceCanvasView.drawPoints(faces,width,height);
 //        faceCanvasView.invalidate();
 ///        Log.d(TAG, "onFacePoints: !!!"+facepp[0].points.length);
     }

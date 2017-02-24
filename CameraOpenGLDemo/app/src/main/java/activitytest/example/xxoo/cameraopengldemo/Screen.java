@@ -3,6 +3,7 @@ package activitytest.example.xxoo.cameraopengldemo;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 
 /**
@@ -10,6 +11,9 @@ import android.view.WindowManager;
  */
 
 public class Screen {
+
+    private static final String TAG = "Screen";
+
     public static int mScreenWidth;
     public static int mScreenHeight;
 
@@ -25,12 +29,10 @@ public class Screen {
 
         mWidth = metrics.widthPixels;// - (int)(50 * density)
         mHeight = metrics.heightPixels/* - mNotificationBarHeight */;//
+        Log.d(TAG, "initialize: px"+mWidth+"+++"+mHeight);
 
         mScreenWidth = metrics.widthPixels;// - (int)(50 * density)
         mScreenHeight = metrics.heightPixels/* - mNotificationBarHeight */;//
-    }
 
-//    public Screen() {
-//        super();
-//    }
+    }
 }

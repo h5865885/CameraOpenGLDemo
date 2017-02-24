@@ -77,7 +77,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 
     private CameraMatrix mCameraMatrix;
     private PointsMatrix mPointsMatrix;
-    private ICamera mICamera;
+    public ICamera mICamera;
 
     private FloatBuffer squareVertices = null;
     private FloatBuffer coordVertices = null;
@@ -256,7 +256,9 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 //                                        .FPP_GET_LANDMARK106:Facepp.FPP_GET_LANDMARK81);
                             _facepp.getLandmark(faces[i],Facepp.FPP_GET_LANDMARK106);
                             //上面一步 获取106个点 否则默认是81个点
-
+                            if (facePointsCallback != null && i == 0){
+                                facePointsCallback.onFacePoints(faces,width,height);
+                            }
 //                            Facepp.Face face = faces[i];
                             if (isFaceProperty){
                                 //暂无
@@ -266,31 +268,29 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
                             roll  = faces[i].roll;
                             confidence = faces[i].confidence;
 
-                            ArrayList<FloatBuffer> triangleVBList = new ArrayList<FloatBuffer>();
-//                            PointF[] points = new PointF[108];
-                            for (int j = 0; j < faces[i].points.length; j++){
-
-                                float x = (faces[i].points[j].x/height) * 2 - 1;
-                                float y = 1-(faces[i].points[j].y/width) * 2;
-                                float[] pointf = new float[]{x,y,0.0f};
+//                            ArrayList<FloatBuffer> triangleVBList = new ArrayList<FloatBuffer>();
+////                            PointF[] points = new PointF[108];
+//                            for (int j = 0; j < faces[i].points.length; j++){
 //
-//                                if (points[j] != null) {
-//                                    points[j].x = x;
+//                                float x = (faces[i].points[j].x/height) * 2 - 1;
+//                                float y = 1-(faces[i].points[j].y/width) * 2;
+//                                float[] pointf = new float[]{x,y,0.0f};
+////
+////                                if (points[j] != null) {
+////                                    points[j].x = x;
+////
+////                                }
+////                                points[j] = pointf(x,y);
+////                                points[i] = ;
+////                                Log.d(TAG, "run: x ="+faces[i].points.length);
 //
-//                                }
-//                                points[j] = pointf(x,y);
-//                                points[i] = ;
-//                                Log.d(TAG, "run: x ="+faces[i].points.length);
-
-                                //默认orientation = 0;
-//                                FloatBuffer floatBuffer =
-                                FloatBuffer floatBuffer = mCameraMatrix.floatBufferUtil(pointf);
-                                triangleVBList.add(floatBuffer);
-                            }
-                            if (facePointsCallback != null && i == 0){
-                                facePointsCallback.onFacePoints(triangleVBList);
-                            }
-                            pointsOpengl.add(triangleVBList);
+//                                //默认orientation = 0;
+////                                FloatBuffer floatBuffer =
+//                                FloatBuffer floatBuffer = mCameraMatrix.floatBufferUtil(pointf);
+//                                triangleVBList.add(floatBuffer);
+//                            }
+//
+//                            pointsOpengl.add(triangleVBList);
                         }
 
                     }else {
@@ -298,20 +298,20 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
                         yaw   = 0.0f;
                         roll  = 0.0f;
                     }
-                    if (faces.length > 0 && is3DPose){
-//                        mPointsMatrix.bottomVertexBuffer = OpenGLDrawRect.drawBottomShowRect(0.15f, 0, -0.7f, pitch,
-//                                -yaw, roll, 0);
-                    }else {
-                        mPointsMatrix.bottomVertexBuffer = null;
-                    }
-                    synchronized (mPointsMatrix){
-                        mPointsMatrix.points = pointsOpengl;
-                    }
+//                    if (faces.length > 0 && is3DPose){
+////                        mPointsMatrix.bottomVertexBuffer = OpenGLDrawRect.drawBottomShowRect(0.15f, 0, -0.7f, pitch,
+////                                -yaw, roll, 0);
+//                    }else {
+//                        mPointsMatrix.bottomVertexBuffer = null;
+//                    }
+//                    synchronized (mPointsMatrix){
+//                        mPointsMatrix.points = pointsOpengl;
+//                    }
                 }
                 isSuccess = false;
-                if (!isTiming) {
-                    timeHandle.sendEmptyMessage(1);
-                }
+//                if (!isTiming) {
+//                    timeHandle.sendEmptyMessage(1);
+//                }
             }
         });
         //        //先执行旋转...
@@ -335,7 +335,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 
     public interface FacePointsCallback{
         //对于接口来说 public是多余的
-        void onFacePoints(ArrayList list);
+        void onFacePoints(Facepp.Face[] faces,int width,int height);
     }
     public void setFacePointsCallback(CameraGLSurfaceView.FacePointsCallback pointsCallback)
     {
