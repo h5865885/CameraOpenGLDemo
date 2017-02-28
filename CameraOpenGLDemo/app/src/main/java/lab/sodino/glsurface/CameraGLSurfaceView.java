@@ -76,7 +76,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
     private static final int FLOAT_SIZE_BYTES = 4;
 
     private CameraMatrix mCameraMatrix;
-    private PointsMatrix mPointsMatrix;
+//    private PointsMatrix mPointsMatrix;
     public ICamera mICamera;
 
     private FloatBuffer squareVertices = null;
@@ -174,7 +174,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         // 这个接口就干了这么一件事，当有数据上来后会进到onFrameAvailable方法
         mSurface.setOnFrameAvailableListener(this);//设置照相机有数据时才进入
         mCameraMatrix = new CameraMatrix(mTextureID);
-        mPointsMatrix = new PointsMatrix();
+//        mPointsMatrix = new PointsMatrix();
 
         mICamera.startPreview(mSurface);//设置预览容器
 //        mICamera.actionDetect(mICamera); 代理回调需要在哪实现...一样一样的
@@ -215,7 +215,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mVMatrix, 0);
 
-        mPointsMatrix.draw(mMVPMatrix);
+//        mPointsMatrix.draw(mMVPMatrix);
         mSurface.updateTexImage();//更新image 会调用onFrameAvailable方法
     }
 

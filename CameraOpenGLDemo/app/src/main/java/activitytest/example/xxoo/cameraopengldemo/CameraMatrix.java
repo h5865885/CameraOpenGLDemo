@@ -4,6 +4,10 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -16,22 +20,24 @@ import java.nio.ShortBuffer;
 
 public class CameraMatrix {
     //vertex着色器
-    private final String vertexShaderCode = "attribute vec4 vPosition;"
-            + "attribute vec2 inputTextureCoordinate;"
-            + "varying vec2 textureCoordinate;"
-            + "void main()"
-            + "{"
-            + "gl_Position = vPosition; gl_PointSize = 10.0;"
-            + "textureCoordinate = inputTextureCoordinate;"
-            + "}";
-    // fragment着色器code
-    private final String fragmentShaderCode = "#extension GL_OES_EGL_image_external : require\n"
-            + "precision mediump float;"
-            + "varying vec2 textureCoordinate;\n"
-            + "uniform samplerExternalOES s_texture;\n"
-            + "void main() {"
-            + "  gl_FragColor = texture2D( s_texture, textureCoordinate );\n"
-            + "}";
+//    private final String vertexShaderCode = "attribute vec4 vPosition;"
+//            + "attribute vec2 inputTextureCoordinate;"
+//            + "varying vec2 textureCoordinate;"
+//            + "void main()"
+//            + "{"
+//            + "gl_Position = vPosition; gl_PointSize = 10.0;"
+//            + "textureCoordinate = inputTextureCoordinate;"
+//            + "}";
+////    // fragment着色器code
+//    private final String fragmentShaderCode = "#extension GL_OES_EGL_image_external : require\n"
+//            + "precision mediump float;"
+//            + "varying vec2 textureCoordinate;\n"
+//            + "uniform samplerExternalOES s_texture;\n"
+//            + "void main() {"
+//            + "  gl_FragColor = texture2D( s_texture, textureCoordinate );\n"
+//            + "}";
+    private String vertexShaderCode;
+    private String fragmentShaderCode;
 
     private FloatBuffer vertexBuffer, textureVerticesBuffer;
     private ShortBuffer drawListBuffer;
@@ -50,7 +56,7 @@ public class CameraMatrix {
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per
     // vertex
     // 直角坐标系
-    static float squareCoords[] = { -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
+    static float squareCoords[]    = { -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
             1.0f, 1.0f, };
     // 结构顶点（8个数字表示了4个点x,y的位置.大小在0-1之间）
     static float textureVertices[] = { 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
@@ -74,6 +80,9 @@ public class CameraMatrix {
 
         mProgram = GLES20.glCreateProgram(); // create empty OpenGL ES Program
 
+
+        vertexShaderCode   = readShaderFromRawResource(R.raw.default_vertex);
+        fragmentShaderCode = readShaderFromRawResource(R.raw.default_fragment);
         // 拿出两个着色器 顶点着色器和碎片着色器
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         GLES20.glAttachShader(mProgram, vertexShader); // add the vertex shader
@@ -172,6 +181,28 @@ public class CameraMatrix {
         // [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0]; result
 
         return result;
+    }
+
+    //读取shader文件 并转化
+    public static String readShaderFromRawResource(final int resourceId){
+        //openRawResource 打开Raw 资源文件 各种glsl文件...
+        final InputStream inputStream = MagicParams.context.getResources().openRawResource(resourceId);
+        final InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+        final BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+        String nextLine;
+        final StringBuilder body = new StringBuilder();
+
+        try{
+            //将glsl文件 拼接下..
+            while ((nextLine = bufferedReader.readLine()) != null){
+                body.append(nextLine);
+                body.append('\n');
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return body.toString();
     }
 
     /**

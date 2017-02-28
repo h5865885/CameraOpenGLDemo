@@ -20,6 +20,7 @@ import com.megvii.facepp.sdk.Facepp;
 import java.util.ArrayList;
 
 import activitytest.example.xxoo.cameraopengldemo.CameraView;
+import activitytest.example.xxoo.cameraopengldemo.MagicParams;
 import activitytest.example.xxoo.cameraopengldemo.R;
 import activitytest.example.xxoo.cameraopengldemo.Screen;
 import lab.sodino.glsurface.CameraGLSurfaceView;
@@ -51,6 +52,7 @@ public class CameraOpenGLDemo extends Activity implements CameraGLSurfaceView.Fa
 //        Log.d(TAG, "onCreate: start");
         mGLSurfaceView = (CameraGLSurfaceView) findViewById(R.id.opengl_layout_surfaceview);
         mGLSurfaceView.setFacePointsCallback(this);
+        MagicParams.context = mGLSurfaceView.getContext();
 //        Log.d(TAG, "onCreate: end");
         faceCanvasView = (FaceCanvasView) findViewById(R.id.facecanvasview);
 //        faceCanvasView.getBackground().setAlpha(50);

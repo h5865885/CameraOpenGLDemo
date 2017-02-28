@@ -176,7 +176,7 @@ public class FaceCanvasView extends View {
             upPath.close();
             canvas.drawPath(upPath,mPaint);
             canvas.clipPath(upPath);
-            mPaint.setColor(Color.argb(100, 150, 5, 210));//a:0-255
+            mPaint.setColor(Color.argb(100, 255, 255, 255));//a:0-255
             upPath.computeBounds(upRect,false);
             canvas.drawBitmap(bitmap,upRect.left-50,upRect.top-50,mPaint);
         }
