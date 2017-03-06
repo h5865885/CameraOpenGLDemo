@@ -56,9 +56,9 @@ public class ICamera {
                     Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
                     Camera.getCameraInfo(cameraId,cameraInfo);
                     Camera.Parameters parameters = mCamera.getParameters();
-                    Camera.Size bestPreviewSize = calBestPreviewSize(mCamera.getParameters(),width,height);
-                    cameraWidth = bestPreviewSize.width;
-                    cameraHeight= bestPreviewSize.height;
+                    Camera.Size bestPreviewSize  = calBestPreviewSize(mCamera.getParameters(),width,height);
+                    cameraWidth  = bestPreviewSize.width;
+                    cameraHeight = bestPreviewSize.height;
 //                    parameters.setPreviewFormat(ImageFormat.NV21);
                     parameters.setPreviewSize(cameraWidth,cameraHeight);
                     Angle = 90;

@@ -1,11 +1,16 @@
 package lab.sodino.glsurface;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Region;
+import android.opengl.GLES11;
 import android.opengl.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -22,10 +27,13 @@ import android.widget.RelativeLayout;
 
 import com.megvii.facepp.sdk.Facepp;
 
+import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -34,8 +42,10 @@ import activitytest.example.xxoo.cameraopengldemo.CameraMatrix;
 import activitytest.example.xxoo.cameraopengldemo.CameraView;
 import activitytest.example.xxoo.cameraopengldemo.ConUtil;
 import activitytest.example.xxoo.cameraopengldemo.ICamera;
+import activitytest.example.xxoo.cameraopengldemo.MagicParams;
 import activitytest.example.xxoo.cameraopengldemo.PointsMatrix;
 import activitytest.example.xxoo.cameraopengldemo.R;
+import activitytest.example.xxoo.cameraopengldemo.Screen;
 import activitytest.example.xxoo.cameraopengldemo.activity.CameraOpenGLDemo;
 
 /**
@@ -76,7 +86,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
     private static final int FLOAT_SIZE_BYTES = 4;
 
     private CameraMatrix mCameraMatrix;
-//    private PointsMatrix mPointsMatrix;
+    private PointsMatrix mPointsMatrix;
     public ICamera mICamera;
 
     private FloatBuffer squareVertices = null;
@@ -174,7 +184,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         // 这个接口就干了这么一件事，当有数据上来后会进到onFrameAvailable方法
         mSurface.setOnFrameAvailableListener(this);//设置照相机有数据时才进入
         mCameraMatrix = new CameraMatrix(mTextureID);
-//        mPointsMatrix = new PointsMatrix();
+        mPointsMatrix = new PointsMatrix();
 
         mICamera.startPreview(mSurface);//设置预览容器
 //        mICamera.actionDetect(mICamera); 代理回调需要在哪实现...一样一样的
@@ -217,9 +227,74 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 
 //        mPointsMatrix.draw(mMVPMatrix);
         mSurface.updateTexImage();//更新image 会调用onFrameAvailable方法
+
+        readPixelsToBitmap(gl);
     }
 
+    private ByteBuffer rgbaBuf;
+    private byte[]     bytes;
+
+    private void readPixelsToBitmap(GL10 gl){
+
+
+//        if (rgbaBuf == null){
+        rgbaBuf = ByteBuffer.allocateDirect(mICamera.cameraWidth * mICamera.cameraHeight * 4);
+        bytes = new byte[300 * mouseRect.height()];
+//        }
+//     int[] pixels = new int[width*height];//保存所有的像素的数组，图片宽×高
+        rgbaBuf.clear();
+        rgbaBuf.position(0);
+        if (mouseRect.width() > 0 || mouseRect.height() > 0){
+            gl.glReadPixels(mouseRect.left, 1440 - mouseRect.top - mouseRect.height(), 300,mouseRect.height(),GLES20
+                    .GL_RGBA,
+                    GLES20
+                    .GL_UNSIGNED_BYTE,rgbaBuf);
+//            rgbaBuf.get(bytes,0,300 * mouseRect.height());
+//            rgbaBuf.get(bytes);
+//            for (int i = 0; i < bytes.length; i++){
+//                int red = bytes[i] & 0xff;
+//            }
+
+
+//            saveRgb2Bitmap(rgbaBuf,null,300,mouseRect.height());
+        }
+    }
+
+    private void saveRgb2Bitmap(Buffer buf, String filename, int width, int height) {
+        try {
+            Bitmap bmp = Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888);
+            bmp.copyPixelsFromBuffer(buf);
+            MagicParams.bmpRect = mouseRect;
+            MagicParams.bmp     = bmp;
+        } finally {
+
+        }
+    }
+
+
     boolean isSuccess = false;
+
+    PointF[] pointFs   = new PointF[4];
+    int[]    counts    = {84,86,90,93};
+    Rect     mouseRect = new Rect();
+
+    /**
+     *  ### face++给的图例是 经Y轴 镜像过的 84点 在 90点 右边
+     */
+    private void getMouseRect(Facepp.Face[] faces){
+        for (int i = 0;i < counts.length;i++){
+            if (pointFs[i] == null)
+                pointFs[i] = new PointF();
+//            pointFs[i] = faces[0].points[counts[i]];
+            pointFs[i].set(transitionX(faces[0].points[counts[i]].x),transitionY(faces[0].points[counts[i]].y));
+        }
+        mouseRect.set(
+                (int) (pointFs[2].x-20),
+                (int) (pointFs[1].y-20),
+                (int) (pointFs[0].x+20),
+                (int) (pointFs[3].y+20));
+//        Log.d(TAG, "getMouseRect: rect = "+rectF);
+    }
 
     //相机的回调函数
     /**
@@ -259,6 +334,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
                             if (facePointsCallback != null && i == 0){
                                 facePointsCallback.onFacePoints(faces,width,height);
                             }
+                            getMouseRect(faces);
+
 //                            Facepp.Face face = faces[i];
                             if (isFaceProperty){
                                 //暂无
@@ -418,6 +495,16 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         }
     }
 
+    private float transitionX(float x){
+
+        return (480 - x) / 480 * Screen.mWidth;
+    }
+
+    private float transitionY(float y) {
+
+        return y / 640 * this.getHeight();
+    }
+
     public static byte[] rotateYUV240SP(byte[] src,byte[] des,int width,int height)
     {
         int wh = width * height;
@@ -556,8 +643,12 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
 //        fboWidth = fboHeight = 0;
 //    }
 
+
+
     /**
      * 回调 代理回调也可以类似 class 去执行
+     * http://blog.csdn.net/chylove5/article/details/49637535
+     * 使用OpenGLES 在 android 上显示摄像头滤镜效果
      */
 
     public class MyGL20Renderer implements GLSurfaceView.Renderer
