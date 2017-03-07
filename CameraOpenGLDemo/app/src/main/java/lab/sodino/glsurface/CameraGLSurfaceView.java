@@ -47,6 +47,7 @@ import activitytest.example.xxoo.cameraopengldemo.PointsMatrix;
 import activitytest.example.xxoo.cameraopengldemo.R;
 import activitytest.example.xxoo.cameraopengldemo.Screen;
 import activitytest.example.xxoo.cameraopengldemo.activity.CameraOpenGLDemo;
+import activitytest.example.xxoo.cameraopengldemo.help.OpenGLDrawRect;
 
 /**
  * Created by chenyan on 2015/10/21.
@@ -192,8 +193,17 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         if (isTiming) {
             timeHandle.sendEmptyMessageDelayed(0, printTime);
         }
+        //画框
+        drawShowRect();
     }
 
+    /**
+     * 画绿色框
+     */
+    private void drawShowRect() {
+		mPointsMatrix.vertexBuffers = OpenGLDrawRect.drawCenterShowRect(isBackCamera, mICamera.cameraWidth,
+				mICamera.cameraHeight, roi_ratio);
+    }
 
     private final float[] mMVPMatrix = new float[16];
     private final float[] mProjMatrix = new float[16];
@@ -225,7 +235,7 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mVMatrix, 0);
 
-//        mPointsMatrix.draw(mMVPMatrix);
+        mPointsMatrix.draw(mMVPMatrix);
         mSurface.updateTexImage();//更新image 会调用onFrameAvailable方法
 
         readPixelsToBitmap(gl);
@@ -249,6 +259,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
                     .GL_RGBA,
                     GLES20
                     .GL_UNSIGNED_BYTE,rgbaBuf);
+
+//            gl.glDrawElements();
 //            rgbaBuf.get(bytes,0,300 * mouseRect.height());
 //            rgbaBuf.get(bytes);
 //            for (int i = 0; i < bytes.length; i++){
@@ -345,29 +357,29 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
                             roll  = faces[i].roll;
                             confidence = faces[i].confidence;
 
-//                            ArrayList<FloatBuffer> triangleVBList = new ArrayList<FloatBuffer>();
-////                            PointF[] points = new PointF[108];
-//                            for (int j = 0; j < faces[i].points.length; j++){
+                            ArrayList<FloatBuffer> triangleVBList = new ArrayList<FloatBuffer>();
+//                            PointF[] points = new PointF[108];
+                            for (int j = 0; j < faces[i].points.length; j++){
+
+                                float x = (faces[i].points[j].x/height) * 2 - 1;
+                                float y = 1-(faces[i].points[j].y/width) * 2;
+                                float[] pointf = new float[]{x,y,0.0f};
 //
-//                                float x = (faces[i].points[j].x/height) * 2 - 1;
-//                                float y = 1-(faces[i].points[j].y/width) * 2;
-//                                float[] pointf = new float[]{x,y,0.0f};
-////
-////                                if (points[j] != null) {
-////                                    points[j].x = x;
-////
-////                                }
-////                                points[j] = pointf(x,y);
-////                                points[i] = ;
-////                                Log.d(TAG, "run: x ="+faces[i].points.length);
+//                                if (points[j] != null) {
+//                                    points[j].x = x;
 //
-//                                //默认orientation = 0;
-////                                FloatBuffer floatBuffer =
-//                                FloatBuffer floatBuffer = mCameraMatrix.floatBufferUtil(pointf);
-//                                triangleVBList.add(floatBuffer);
-//                            }
-//
-//                            pointsOpengl.add(triangleVBList);
+//                                }
+//                                points[j] = pointf(x,y);
+//                                points[i] = ;
+//                                Log.d(TAG, "run: x ="+faces[i].points.length);
+
+                                //默认orientation = 0;
+//                                FloatBuffer floatBuffer =
+                                FloatBuffer floatBuffer = mCameraMatrix.floatBufferUtil(pointf);
+                                triangleVBList.add(floatBuffer);
+                            }
+
+                            pointsOpengl.add(triangleVBList);
                         }
 
                     }else {
@@ -375,15 +387,15 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
                         yaw   = 0.0f;
                         roll  = 0.0f;
                     }
-//                    if (faces.length > 0 && is3DPose){
-////                        mPointsMatrix.bottomVertexBuffer = OpenGLDrawRect.drawBottomShowRect(0.15f, 0, -0.7f, pitch,
-////                                -yaw, roll, 0);
-//                    }else {
-//                        mPointsMatrix.bottomVertexBuffer = null;
-//                    }
-//                    synchronized (mPointsMatrix){
-//                        mPointsMatrix.points = pointsOpengl;
-//                    }
+                    if (faces.length > 0 && is3DPose){
+//                        mPointsMatrix.bottomVertexBuffer = OpenGLDrawRect.drawBottomShowRect(0.15f, 0, -0.7f, pitch,
+//                                -yaw, roll, 0);
+                    }else {
+                        mPointsMatrix.bottomVertexBuffer = null;
+                    }
+                    synchronized (mPointsMatrix){
+                        mPointsMatrix.points = pointsOpengl;
+                    }
                 }
                 isSuccess = false;
 //                if (!isTiming) {
@@ -675,6 +687,8 @@ public class CameraGLSurfaceView extends GLSurfaceView implements CameraView.Sav
             createTexture(frameHeight,frameWidth, GLES20.GL_RGBA, Mtexture);
 
             mbpaly = true;
+
+
         }
 
         private void changeFilterShader(int filterId)

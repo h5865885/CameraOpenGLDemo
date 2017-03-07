@@ -54,7 +54,7 @@ public class CameraOpenGLDemo extends Activity implements CameraGLSurfaceView.Fa
         mGLSurfaceView.setFacePointsCallback(this);
         MagicParams.context = mGLSurfaceView.getContext();
 //        Log.d(TAG, "onCreate: end");
-        faceCanvasView = (FaceCanvasView) findViewById(R.id.facecanvasview);
+//        faceCanvasView = (FaceCanvasView) findViewById(R.id.facecanvasview);
 //        faceCanvasView.getBackground().setAlpha(50);
 
         //GL绘制窗口
@@ -85,13 +85,13 @@ public class CameraOpenGLDemo extends Activity implements CameraGLSurfaceView.Fa
         super.onResume();
         mGLSurfaceView.onResumeConfig(this);
 //        faceCanvasView.onResumeConfig(this);
-        RelativeLayout.LayoutParams layout_params = mGLSurfaceView.mICamera.getLayoutParam();
-        faceCanvasView.setLayoutParams(layout_params);
+//        RelativeLayout.LayoutParams layout_params = mGLSurfaceView.mICamera.getLayoutParam();
+//        faceCanvasView.setLayoutParams(layout_params);
     }
 
     @Override
     public void onFacePoints(Facepp.Face[] faces,int width,int height) {
-        faceCanvasView.drawPoints(faces,width,height);
+//        faceCanvasView.drawPoints(faces,width,height);
 //        faceCanvasView.invalidate();
 ///        Log.d(TAG, "onFacePoints: !!!"+facepp[0].points.length);
     }

@@ -164,7 +164,7 @@ public class PointsMatrix {
                             vertexStride, vertexBuffer);
                     // Draw the square
 
-                    GLES20.glDrawElements(GLES20.GL_TRIANGLES, drawOrder.length, GLES20.GL_UNSIGNED_SHORT,
+                    GLES20.glDrawElements(GLES20.GL_POINTS, drawOrder.length, GLES20.GL_UNSIGNED_SHORT,
                             drawListBuffer);
                 }
             }
@@ -173,16 +173,33 @@ public class PointsMatrix {
         GLES20.glUniform4fv(mColorHandle, 1, color, 0);
 
         synchronized (this) {
-            for (int i = 0; i < points.size(); i++) {
+            for (int i = 0; i < points.size(); i++) {//人脸数 points.size() 一般为1
                 ArrayList<FloatBuffer> triangleVBList = points.get(i);
+                FloatBuffer floatBuffer;
+                float[] floats = new float[triangleVBList.size() * 3];
+                float[] temp   = new float[3];
+                int k = 0;
                 for (int j = 0; j < triangleVBList.size(); j++) {
                     FloatBuffer fb = triangleVBList.get(j);
-                    if (fb != null) {
-                        GLES20.glVertexAttribPointer(mPositionHandle, 3, GLES20.GL_FLOAT, false, 0, fb);
-                        // Draw the point
-                        GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 1);
-                    }
+                    fb.get(temp,0,3);
+                    floats[k]     = temp[0];
+                    floats[k + 1] = temp[1];
+                    floats[k + 2] = temp[2];
+                    k+=3;
                 }
+                floatBuffer = floatBufferUtil(floats);
+//                if (fb != null) {
+//                GLES20.glVertexAttribPointer(mPositionHandle, 3, GLES20.GL_FLOAT, false, 0, floatBuffer);
+//                    // Draw the point
+//                GLES20.glDrawArrays(GLES20.GL_POINTS, 0, points.size());
+
+                GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false,
+                        vertexStride, floatBuffer);
+                // Draw the square
+
+                GLES20.glDrawElements(GLES20.GL_POINTS, drawOrder.length, GLES20.GL_UNSIGNED_SHORT,
+                        drawListBuffer);
+//                }
             }
         }
 
